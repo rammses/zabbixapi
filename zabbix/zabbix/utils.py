@@ -45,7 +45,7 @@ class SetupZabbix():
                     record1 = [record[n][4], record[n][1]]
                     machines_to_add.append(record1)
 
-        except Error as e:
+        except ConnectionError as e:
             print("Error while connecting to MySQL", e)
         finally:
             # closing database connection.
@@ -62,78 +62,93 @@ class SetupZabbix():
                             new_list.append(machines_to_add[i])
                 return new_list
 
+    def check_existence(self, address):
+        payload = {
+            "jsonrpc": "2.0",
+            "method": "host.get",
+            "params": {
+                "filter": {
+                    "host": [
+                        address
+                    ]
+                }
+            },
+            "auth": Base.authenticate(),
+            "id": 1
+        }
+        response_result = Base.Do_Request(payload)
+        if response_result == []:
+            exists = False
+            return exists
+        else:
+            exists = True
+            return exists
+
+
     def add_host_snmp(self, hosts_to_add):
         counter = 0
-        # remove duplicates
-        result = []
-        for x in hosts_to_add:
-            if x not in result:
-                result.append(x)
-        print('non clean :',len(hosts_to_add),'after cleaning',len(x))
-        clean_hosts_to_add = result
-        print(clean_hosts_to_add)
-        print(len(clean_hosts_to_add))
 
-        for i in range(len(clean_hosts_to_add)):
-            if clean_hosts_to_add[i][0] != None:
+        for i in range(len(hosts_to_add)):
+            if self.check_existence(hosts_to_add[i][0]) == False:
+                print()
                 payload = {
-                    "jsonrpc": "2.0",
-                    "method": "host.create",
-                    "params": {
-                        "host": clean_hosts_to_add[i][0],
-                        "interfaces": [
-                            {
-                                "type": 2,
-                                "main": 1,
-                                "useip": 1,
-                                "ip": clean_hosts_to_add[i][0],
-                                "dns": "",
-                                "port": "161"
+                        "jsonrpc": "2.0",
+                        "method": "host.create",
+                        "params": {
+                            "host": hosts_to_add[i][0],
+                            "interfaces": [
+                                {
+                                    "type": 2,
+                                    "main": 1,
+                                    "useip": 1,
+                                    "ip": hosts_to_add[i][0],
+                                    "dns": "",
+                                    "port": "161"
+                                }
+                            ],
+                            "groups": [
+                                {
+                                    "groupid": "29"
+                                }
+                            ],
+                            "tags": [
+                                {
+                                    "tag": "Added by",
+                                    "value": "Zabbix api"
+                                },
+                                {
+                                    "tag": "Owner",
+                                    "value": "Mobilenoc.mobi"
+                                }
+                            ],
+                            "templates": [
+                                {
+                                    "templateid": "10226"
+                                }
+                            ],
+                            "macros": [
+                                {
+                                    "macro": "{$SNMP_COMMUNITY}",
+                                    "value": "Spr1ngf13ld"
+                                }
+                            ],
+                            "name": 'Delete_Me_'+hosts_to_add[i][1],
+                            "inventory_mode": 0,
+                            "inventory": {
+                                "macaddress_a": "01234",
+                                "macaddress_b": "56768"
                             }
-                        ],
-                        "groups": [
-                            {
-                                "groupid": "29"
-                            }
-                        ],
-                        "tags": [
-                            {
-                                "tag": "Added by",
-                                "value": "Zabbix api"
-                            },
-                            {
-                                "tag": "Owner",
-                                "value": "Mobilenoc.mobi"
-                            }
-                        ],
-                        "templates": [
-                            {
-                                "templateid": "10226"
-                            }
-                        ],
-                        "macros": [
-                            {
-                                "macro": "{$SNMP_COMMUNITY}",
-                                "value": "Spr1ngf13ld"
-                            }
-                        ],
-                        "name": 'Delete_Me_'+clean_hosts_to_add[i][1],
-                        "inventory_mode": 0,
-                        "inventory": {
-                            "macaddress_a": "01234",
-                            "macaddress_b": "56768"
-                        }
-                    },
-                    "auth": Base.authenticate(),
-                    "id": 1
-                }
-
-                print('Adding host :', clean_hosts_to_add[i][0])
+                        },
+                        "auth": Base.authenticate(),
+                        "id": 1
+                    }
+                print('Adding host :', hosts_to_add[i][0])
                 print(payload)
                 Base.Do_Request(payload)
-                print('Hosts added :', clean_hosts_to_add[i][0])
+                print('Hosts added :', hosts_to_add[i][0])
+            else:
+                print('host found skipping :', hosts_to_add[i][0])
             counter += 1
-
         response = 'all hosts added', counter
         return response
 
