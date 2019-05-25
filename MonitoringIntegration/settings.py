@@ -128,3 +128,9 @@ ZABBIX_SERVERURL = 'http://localhost:8025/api_jsonrpc.php'
 ZABBIX_USERNAME = 'Admin'
 ZABBIX_PASSWORD = 'zabbix'
 ZABBIX_HEADERS = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+
+
+Machines_db_hostname = '142.93.198.151'
+Machines_db_database = 'dev'
+Machines_db_user = 'root'
+Machines_db_password = 'Mrk_9626'

@@ -20,7 +20,12 @@ from django.conf import urls
 from .views import  HostGroupObject,\
                     HostGroupRename,\
                     HostObjects,\
-                    HostObject
+                    HostObject,\
+                    HostTemplates,\
+                    HostInterfaces,\
+                    HostStandardSnmp,\
+                    HostAlarms,\
+                    CheckForHostsExistence
 from django.conf.urls import url
 from rest_framework_swagger.views import get_swagger_view
 
@@ -29,14 +34,25 @@ schema_view = get_swagger_view(title='MobileNoc Zabbix API')
 
 urlpatterns = [
     # HostGroup Endpoints
+    urls.url(r'zabbix/hostgroups/', HostGroupObject.as_view({'put': 'list_groups'})),
     urls.url(r'zabbix/hostgroupcreate/', HostGroupObject.as_view({'put': 'add_group'})),
     urls.url(r'zabbix/hostgroupdetail/', HostGroupObject.as_view({'put': 'get_group'})),
     urls.url(r'zabbix/hostgroupdelete/', HostGroupObject.as_view({'put': 'delete_group'})),
     urls.url(r'zabbix/hostgrouprename/', HostGroupRename.as_view({'put': 'rename_group'})),
 
+    # templates added to host
+    urls.url(r'zabbix/hosttemplate/', HostTemplates.as_view({'put': 'get_templates'})),
+
+    # Interfaces added to host
+    urls.url(r'zabbix/hostinterfaces/', HostInterfaces.as_view({'put': 'get_interfaces'})),
+
     # Host Endpoints
     urls.url(r'zabbix/hosts/', HostObjects.as_view({'put': 'get_hosts'})),
     urls.url(r'zabbix/hostdetail/', HostObject.as_view({'put': 'get_host'})),
+    urls.url(r'zabbix/hostsaddsnmp/', HostStandardSnmp.as_view({'put': 'add_host'})),
+    urls.url(r'zabbix/checkhostsexistence/', CheckForHostsExistence.as_view({'put': 'by_host_ip'})),
+    # Alarms
+    urls.url(r'zabbix/alarms/', HostAlarms.as_view({'put': 'list_host_alarms'})),
 
     # Swagger Schema
     url(r'^$', schema_view)
