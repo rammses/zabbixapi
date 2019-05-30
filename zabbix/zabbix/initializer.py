@@ -11,13 +11,7 @@ def initialize_zabbix():
         zabbix_stuff.add_host_snmp(machine_list)
         success = True
         return success
-    except:
-        print('error occured :')
+    except Warning as error:
+        print('error occured :', error)
         success = False
         return success
-
-
-
-
-
-print(initialize_zabbix())

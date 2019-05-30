@@ -2,7 +2,7 @@ import requests
 import json
 import sys
 from MonitoringIntegration import settings
-#from rest_framework import viewsets, response, status
+
 
 class Base():
 
@@ -51,8 +51,8 @@ class Base():
             "auth": Base.authenticate(),
             "id": 1
         }
-        R = requests.post(settings.ZABBIX_SERVERURL, data=json.dumps(payload), headers=settings.ZABBIX_HEADERS)
-        R = R.json()
-        raw_data = R['result']
+        r = requests.post(settings.ZABBIX_SERVERURL, data=json.dumps(payload), headers=settings.ZABBIX_HEADERS)
+        r = r.json()
+        raw_data = r['result']
         grpid = json.loads(json.dumps(raw_data[0]))
         return grpid['groupid']

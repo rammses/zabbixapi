@@ -1,13 +1,15 @@
 import mysql.connector
 from MonitoringIntegration import settings as settings
 from zabbix.zabbix.base import Base
+import logging
 
 
 class SetupZabbix():
-    hostname=settings.Machines_db_hostname
-    database=settings.Machines_db_database
+    hostname = settings.Machines_db_hostname
+    database = settings.Machines_db_database
     user = settings.Machines_db_user
     password = settings.Machines_db_password
+    logger = logging.getLogger(__name__)
 
     def deduplicate_by_ip(self, a):
         """
@@ -20,7 +22,7 @@ class SetupZabbix():
         source_ips = []
         new_list = []
         for i in range(len(a)):
-            if a[i][0] != None:
+            if a[i][0] is not None:
                 if a[i][0] not in source_ips:
                     source_ips.append(a[i][0])
                     new_list.append(a[i])
@@ -40,13 +42,12 @@ class SetupZabbix():
                 count = len(record)
 
                 for n in range(count):
-                    # print('step ', n, 'Machine Name :', record[n][1], 'Machine Address :', record[n][4])
-                    # machines_to_add.append(record[n][4])
                     record1 = [record[n][4], record[n][1]]
                     machines_to_add.append(record1)
 
         except ConnectionError as e:
             print("Error while connecting to MySQL", e)
+            self.logger.error("Error while connecting to MySQL",e)
         finally:
             # closing database connection.
             if (connection.is_connected()):
@@ -90,7 +91,6 @@ class SetupZabbix():
 
         for i in range(len(hosts_to_add)):
             if self.check_existence(hosts_to_add[i][0]) == False:
-                print()
                 payload = {
                         "jsonrpc": "2.0",
                         "method": "host.create",
