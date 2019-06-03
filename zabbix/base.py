@@ -169,7 +169,7 @@ class ZabbixClient4_1():
 # print("output of existence ", p.check_existence_of_machine('mesut'))
 #
 #
-q = ZabbixClient4_1()
-print("output of existence ", q.check_existence_of_machine('mobilenoc-fw/sec'))
-
-q.add_machine('mobilenoc-fw/sec','4.71.144.117')
+# q = ZabbixClient4_1()
+# # print("output of existence ", q.check_existence_of_machine('mobilenoc-fw/sec'))
+# #
+# # q.add_machine('mobilenoc-fw/sec','4.71.144.117')
