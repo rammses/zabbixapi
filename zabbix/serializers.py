@@ -43,9 +43,9 @@ class GetGroupsSerializer(serializers.Serializer):
 
 
 class HostAddSnmpSerializer(serializers.Serializer):
-    Ip_Or_Fqdn = serializers.CharField(required=True)
-    Snmp_Destination_Ip = serializers.IPAddressField(required=True)
-    Visible_Name = serializers.CharField(required=True)
+    host_name = serializers.CharField(required=True)
+    snmp_interface_ip = serializers.IPAddressField(required=True)
+    visible_name = serializers.CharField(required=True)
 
 class AlarmsSerializer(serializers.Serializer):
     host_id = serializers.CharField(required=True)

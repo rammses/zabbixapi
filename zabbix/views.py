@@ -14,6 +14,7 @@ from zabbix.serializers import \
     AlarmsSerializer
 
 from MonitoringIntegration import settings
+from zabbix.base import ZabbixClient4_1
 import requests
 import json
 import sys
@@ -71,7 +72,6 @@ class Base:
         raw_data = R['result']
         grpid = json.loads(json.dumps(raw_data[0]))
         return grpid['groupid']
-
 
 
 class HostGroupObject(viewsets.ViewSet):
@@ -279,25 +279,24 @@ class HostTemplates(viewsets.ViewSet):
 
 class HostInterfaces(viewsets.ViewSet):
 
+
     def get_serializer(self, data=None):
         return HostTemplateSerializer(data=data)
 
     def get_interfaces(self, request):
+        """
+        Gets the detail of an inteface bound to host using it's name
+        :param request:
+        :return:
+        """
         data = request.data
         serializer = self.get_serializer(data=data)
         if serializer.is_valid():
-            k = list(serializer.data.values())
-            payload = {
-                        "jsonrpc": "2.0",
-                        "method": "hostinterface.get",
-                        "params": {
-                            "output": "extend",
-                            "hostids": k[0]
-                        },
-                        "auth": Base.authenticate(),
-                        "id": 1
-                    }
-            response_result = Base.Do_Request(payload)
+            values_from_request = list(serializer.data.values())
+
+            zabbixclient = ZabbixClient4_1()
+            response_result = zabbixclient.get_hosts_snmp_interface_by_name(values_from_request[0])
+
             return response.Response(data=response_result, status=status.HTTP_200_OK)
 
 
@@ -307,63 +306,19 @@ class HostStandardSnmp(viewsets.ViewSet):
         return HostAddSnmpSerializer(data=data)
 
     def add_host(self, request):
+        """
+        Adds a host using hostname and snmp ip address
+        :param request:
+        :return:
+        """
         data = request.data
         serializer = self.get_serializer(data=data)
         if serializer.is_valid():
-            k = list(serializer.data.values())
+            values_from_request = list(serializer.data.values())
 
-            payload = {
-                            "jsonrpc": "2.0",
-                            "method": "host.create",
-                            "params": {
-                                "host": k[0],
-                                "interfaces": [
-                                    {
-                                        "type": 2,
-                                        "main": 1,
-                                        "useip": 1,
-                                        "ip": k[1],
-                                        "dns": "",
-                                        "port": "161"
-                                    }
-                                ],
-                                "groups": [
-                                    {
-                                        "groupid": "29"
-                                    }
-                                ],
-                                "tags": [
-                                    {
-                                        "tag": "Added by",
-                                        "value": "Zabbix api"
-                                    },
-                                    {
-                                        "tag": "Owner",
-                                        "value": "Mobilenoc.mobi"
-                                    }
-                                ],
-                                "templates": [
-                                    {
-                                        "templateid": "10226"
-                                    }
-                                ],
-                                "macros": [
-                                    {
-                                        "macro": "{$SNMP_COMMUNITY}",
-                                        "value": "Spr1ngf13ld"
-                                    }
-                                ],
-                                "name": k[2],
-                                "inventory_mode": 0,
-                                "inventory": {
-                                    "macaddress_a": "01234",
-                                    "macaddress_b": "56768"
-                                }
-                            },
-                            "auth": Base.authenticate(),
-                            "id": 1
-                        }
-            response_result = Base.Do_Request(payload)
+            ZabbixClient = ZabbixClient4_1()
+            response_result = ZabbixClient.add_machine(values_from_request[0], values_from_request[1])
+
             return response.Response(data=response_result, status=status.HTTP_200_OK)
 
 
@@ -373,24 +328,20 @@ class HostAlarms(viewsets.ViewSet):
         return AlarmsSerializer(data=data)
 
     def list_host_alarms(self, request):
+        """
+        Lists alarms from zabbix usin host_id
+        :param request:
+        :return:
+        """
         data = request.data
         serializer = self.get_serializer(data=data)
         if serializer.is_valid():
-            k = list(serializer.data.values())
-            print(k[0])
-            payload = {
-                "jsonrpc": "2.0",
-                "method": "problem.get",
-                "params": {
-                    "output": "extend",
-                    "hostids": k[0],
-                    "sortfield": ["eventid"],
-                    "sortorder": "DESC"
-                },
-                "auth": Base.authenticate(),
-                "id": 1
-            }
-            response_result = Base.Do_Request(payload)
+            values_from_request = list(serializer.data.values())
+            print(values_from_request[0])
+
+            ZabbixClient = ZabbixClient4_1()
+            response_result = ZabbixClient.list_host_alarms(values_from_request[0])
+
             return response.Response(data=response_result, status=status.HTTP_200_OK)
 
     def acknowledge_alarm(self, request):
@@ -401,31 +352,29 @@ class HostAlarms(viewsets.ViewSet):
 
 
 class CheckForHostsExistence(viewsets.ViewSet):
+    """
+    Checks that host exists on Zabbix
+    if exists returns 200
+    if not returns 204
+
+    """
 
     def get_serializer(self, data=None):
         return GetHostNameSerializer(data=data)
 
-    def by_host_ip(self, request):
+    def by_host_name(self, request):
+
         data = request.data
         serializer = self.get_serializer(data=data)
+
         if serializer.is_valid():
-            k = list(serializer.data.values())
-            print(k[0])
-            payload = {
-                        "jsonrpc": "2.0",
-                        "method": "host.get",
-                        "params": {
-                            "filter": {
-                                "host": [
-                                    k[0]
-                                ]
-                            }
-                        },
-                        "auth": Base.authenticate(),
-                        "id": 1
-                    }
-            response_result = Base.Do_Request(payload)
-            if response_result==[]:
+            values_from_request = list(serializer.data.values())
+            print(values_from_request[0])
+
+            ZabbixClient = ZabbixClient4_1
+            response_result = ZabbixClient.check_existence_of_machine(values_from_request[0])
+
+            if response_result is not False:
                 return response.Response(data='None', status=status.HTTP_204_NO_CONTENT)
             else:
                 return response.Response(data=response_result, status=status.HTTP_200_OK)

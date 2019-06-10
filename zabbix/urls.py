@@ -49,7 +49,7 @@ urlpatterns = [
     urls.url(r'zabbix/hosts/', HostObjects.as_view({'put': 'get_hosts'})),
     urls.url(r'zabbix/hostdetail/', HostObject.as_view({'put': 'get_host'})),
     urls.url(r'zabbix/hostsaddsnmp/', HostStandardSnmp.as_view({'put': 'add_host'})),
-    urls.url(r'zabbix/checkhostsexistence/', CheckForHostsExistence.as_view({'put': 'by_host_ip'})),
+    urls.url(r'zabbix/checkhostsexistence/', CheckForHostsExistence.as_view({'put': 'by_host_name'})),
     # Alarms
     urls.url(r'zabbix/alarms/', HostAlarms.as_view({'put': 'list_host_alarms'})),
 

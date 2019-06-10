@@ -65,6 +65,12 @@ class ZabbixClient4_1():
         return grpid['groupid']
 
     def check_existence_of_machine(self, name):
+        """
+        Checks for existence in zabbix using http request
+        returns true if the response is empty from zabbix
+        :param name: host
+        :return: True or False
+        """
 
         params = {"filter": {
             "host": [
@@ -80,30 +86,19 @@ class ZabbixClient4_1():
         else:
             return False
 
-    def by_host_ip(self, name):
+    def list_host_alarms(self, name):
 
-        payload = {
-            "jsonrpc": "2.0",
-            "method": "host.get",
-            "params": {
-                "filter": {
-                    "host": [
-                        name
-                    ]
+        params = {
+                "output": "extend",
+                "hostids": name,
+                "sortfield": ["eventid"],
+                "sortorder": "DESC"
                 }
-            },
-            "id": 1,
-            "auth": self.get_token()
-        }
 
-        response_result = self.do_request(payload)
-        print(response_result)
-        if response_result == []:
-            return False
-        else:
-            return True
+        request = self._build_request('problem.get', params=params)
+        response_result = self.do_request(request)
 
-
+        return response_result
 
     def add_machine(self, name, ip):
 
@@ -124,7 +119,7 @@ class ZabbixClient4_1():
                                  ],
                                  "groups": [
                                      {
-                                         "groupid": "29"
+                                         "groupid": "15"
                                      }
                                  ],
                                  "tags": [
@@ -163,13 +158,15 @@ class ZabbixClient4_1():
                 response = "skipped :" + name
                 return response
 
+    def get_hosts_snmp_interface_by_name(self,name):
 
+        params = {
+            "output": "extend",
+            # "hostids": [name]
+                  }
 
-# p = ZabbixClient4_1()
-# print("output of existence ", p.check_existence_of_machine('mesut'))
-#
-#
-# q = ZabbixClient4_1()
-# # print("output of existence ", q.check_existence_of_machine('mobilenoc-fw/sec'))
-# #
-# # q.add_machine('mobilenoc-fw/sec','4.71.144.117')
+        request = self._build_request('hostinterface.get', params=params)
+        response_result = self.do_request(request)
+
+        return response_result
+
