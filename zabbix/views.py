@@ -186,40 +186,17 @@ class HostGroupRename(viewsets.ViewSet):
 
 
 class HostObjects(viewsets.ViewSet):
-    def get_serializer(self, data=None):
-        return GetHostsSerializer(data=data)
 
-    def get_hosts(self, request):
-        data = request.data
-        serializer = self.get_serializer(data=data)
-        if serializer.is_valid():
-            k = list(serializer.data.values())
-            if k[0] == True:
-                print("online devices only")
-                payload = {
-                    "jsonrpc": "2.0",
-                    "method": "host.get",
-                    "params": {
-                        "output": ["host"],
-                        "status": ["1"],
-                    },
-                    "id": 2,
-                    "auth": Base.authenticate()
-                }
-            else:
-                print("all devices")
-                payload ={
-                            "jsonrpc": "2.0",
-                            "method": "host.get",
-                            "params": {
-                                    "output": ["host"],
-                                    },
-                            "id": 2,
-                            "auth": Base.authenticate()
-                }
+    def get_enabled_hosts(self, request):
+        """
+        lists enabled hosts
+        :param request:
+        :return: lists enabled machines and their zabbix hostids.
+        """
+        ZabbixClient = ZabbixClient4_1()
+        response_result = ZabbixClient.get_enabled_hosts()
 
-            response_result = Base.Do_Request(payload)
-            return response.Response(data=response_result, status=status.HTTP_200_OK)
+        return response.Response(data=response_result, status=status.HTTP_200_OK)
 
 
 class HostObject(viewsets.ViewSet):

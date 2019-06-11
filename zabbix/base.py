@@ -119,7 +119,7 @@ class ZabbixClient4_1():
                                  ],
                                  "groups": [
                                      {
-                                         "groupid": "15"
+                                         "groupid": "9"
                                      }
                                  ],
                                  "tags": [
@@ -172,3 +172,19 @@ class ZabbixClient4_1():
         response_result = self.do_request(request)
 
         return response_result
+
+    def get_enabled_hosts(self):
+        """
+        lists all hosts
+        :return:
+        """
+
+        params = {
+            "output": ["host"],
+            "status": ["1"],
+        }
+
+        request = self._build_request('host.get', params=params)
+        hosts = self.do_request(request)
+
+        return hosts

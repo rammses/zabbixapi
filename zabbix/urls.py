@@ -33,25 +33,25 @@ schema_view = get_swagger_view(title='MobileNoc Zabbix API')
 
 urlpatterns = [
     # HostGroup Endpoints
-    urls.url(r'zabbix/hostgroups/', HostGroupObject.as_view({'put': 'list_groups'})),
-    urls.url(r'zabbix/hostgroupcreate/', HostGroupObject.as_view({'put': 'add_group'})),
-    urls.url(r'zabbix/hostgroupdetail/', HostGroupObject.as_view({'put': 'get_group'})),
-    urls.url(r'zabbix/hostgroupdelete/', HostGroupObject.as_view({'put': 'delete_group'})),
-    urls.url(r'zabbix/hostgrouprename/', HostGroupRename.as_view({'put': 'rename_group'})),
+    # urls.url(r'zabbix/hostgroups/', HostGroupObject.as_view({'put': 'list_groups'})),
+    # urls.url(r'zabbix/hostgroupcreate/', HostGroupObject.as_view({'put': 'add_group'})),
+    # urls.url(r'zabbix/hostgroupdetail/', HostGroupObject.as_view({'put': 'get_group'})),
+    # urls.url(r'zabbix/hostgroupdelete/', HostGroupObject.as_view({'put': 'delete_group'})),
+    # urls.url(r'zabbix/hostgrouprename/', HostGroupRename.as_view({'put': 'rename_group'})),
 
     # templates added to host
-    urls.url(r'zabbix/hosttemplate/', HostTemplates.as_view({'put': 'get_templates'})),
+    # urls.url(r'zabbix/hosttemplate/', HostTemplates.as_view({'put': 'get_templates'})),
 
     # Interfaces added to host
-    urls.url(r'zabbix/hostinterfaces/', HostInterfaces.as_view({'put': 'get_interfaces'})),
+    # urls.url(r'zabbix/hostinterfaces/', HostInterfaces.as_view({'put': 'get_interfaces'})),
 
     # Host Endpoints
-    urls.url(r'zabbix/hosts/', HostObjects.as_view({'get': 'get_hosts'})),
-    urls.url(r'zabbix/hostdetail/', HostObject.as_view({'put': 'get_host'})),
+    urls.url(r'zabbix/hosts/', HostObjects.as_view({'get': 'get_enabled_hosts'})),
+    urls.url(r'zabbix/hostdetail/', HostObject.as_view({'get': 'get_host'})),
     urls.url(r'zabbix/hostsaddsnmp/', HostStandardSnmp.as_view({'put': 'add_host'})),
-    urls.url(r'zabbix/checkhostsexistence/', CheckForHostsExistence.as_view({'put': 'by_host_name'})),
+    # urls.url(r'zabbix/checkhostsexistence/', CheckForHostsExistence.as_view({'put': 'by_host_name'})),
     # Alarms
-    urls.url(r'zabbix/alarms/', HostAlarms.as_view({'put': 'list_host_alarms'})),
+    urls.url(r'zabbix/alarms/', HostAlarms.as_view({'get': 'list_host_alarms'})),
 
     # Swagger Schema
     url(r'^$', schema_view)
