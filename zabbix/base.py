@@ -162,11 +162,13 @@ class ZabbixClient4_1():
 
         params = {
             "output": "extend",
-            # "hostids": [name]
+            "hostids": [name],
+            "filter": {
+                "selectHost": [name]
+            }
                   }
 
         request = self._build_request('hostinterface.get', params=params)
         response_result = self.do_request(request)
 
         return response_result
-
