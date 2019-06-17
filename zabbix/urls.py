@@ -47,11 +47,14 @@ urlpatterns = [
 
     # Host Endpoints
     urls.url(r'zabbix/hosts/', HostObjects.as_view({'get': 'get_enabled_hosts'})),
-    urls.url(r'zabbix/hostdetail/', HostObject.as_view({'get': 'get_host'})),
-    urls.url(r'zabbix/hostsaddsnmp/', HostStandardSnmp.as_view({'put': 'add_host'})),
+
+    urls.url(r'^zabbix/hostdetail/(?P<host_name>.+)/$', HostObject.as_view({'get': 'get_host'})),
+
+    urls.url(r'zabbix/hostsaddsnmp/', HostStandardSnmp.as_view({'post': 'add_host'})),
     # urls.url(r'zabbix/checkhostsexistence/', CheckForHostsExistence.as_view({'put': 'by_host_name'})),
+
     # Alarms
-    urls.url(r'zabbix/alarms/', HostAlarms.as_view({'get': 'list_host_alarms'})),
+    urls.url(r'^zabbix/alarms/(?P<host_name>.+)/$', HostAlarms.as_view({'get': 'list_host_alarms'})),
 
     # Swagger Schema
     url(r'^$', schema_view)

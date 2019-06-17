@@ -204,18 +204,22 @@ class HostObject(viewsets.ViewSet):
     def get_serializer(self, data=None):
         return GetHostNameSerializer(data=data)
 
-    def get_host(self, request):
+    def get_host(self, request, host_name):
+        print('detail :', host_name, ' end')
+        print('request :', request.data, ' end')
         data = request.data
         serializer = self.get_serializer(data=data)
-        if serializer.is_valid():
-            k = list(serializer.data.values())
+        print('after serializer :', serializer, ' end')
+        # if serializer.is_valid():
+        if host_name is not None:
+            # k = list(serializer.data.values())
             payload = {
                         "jsonrpc": "2.0",
                         "method": "host.get",
                         "params": {
                                     "filter": {
                                             "host": [
-                                                    k[0]
+                                                    host_name
                                                     ]
                                             }
                                 },
@@ -224,6 +228,9 @@ class HostObject(viewsets.ViewSet):
                         }
             response_result = Base.Do_Request(payload)
             return response.Response(data=response_result, status=status.HTTP_200_OK)
+        else:
+            return response.Response(data=None, status=status.HTTP_204_NO_CONTENT)
+
 
 
 class HostTemplates(viewsets.ViewSet):
