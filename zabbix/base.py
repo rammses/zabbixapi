@@ -100,6 +100,19 @@ class ZabbixClient4_1():
 
         return response_result
 
+    def acknowledge_host_alarm(self, event_id):
+
+        params = {
+                "eventids": event_id,
+                "action": 6,
+                "message": "Problem acknowledged by api"
+                }
+
+        request = self._build_request('event.acknowledge', params=params)
+        response_result = self.do_request(request)
+
+        return response_result
+
     def add_machine(self, name, ip):
 
         if check_chars(name) is True:
