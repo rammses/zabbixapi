@@ -15,6 +15,7 @@ from zabbix.serializers import \
 
 from MonitoringIntegration import settings
 from zabbix.base import ZabbixClient4_1
+from zabbix.utils import HostsIds
 import requests
 import json
 import sys
@@ -205,11 +206,11 @@ class HostObject(viewsets.ViewSet):
         return GetHostNameSerializer(data=data)
 
     def get_host(self, request, host_name):
-        print('detail :', host_name, ' end')
-        print('request :', request.data, ' end')
+        # print('detail :', host_name, ' end')
+        # print('request :', request.data, ' end')
         data = request.data
         serializer = self.get_serializer(data=data)
-        print('after serializer :', serializer, ' end')
+        # print('after serializer :', serializer, ' end')
         # if serializer.is_valid():
         if host_name is not None:
             # k = list(serializer.data.values())
@@ -311,7 +312,7 @@ class HostAlarms(viewsets.ViewSet):
     def get_serializer(self, data=None):
         return AlarmsSerializer(data=data)
 
-    def list_host_alarms(self, request):
+    def list_host_alarms(self, request, host_name):
         """
         Lists alarms from zabbix usin host_id
         :param request:
@@ -319,14 +320,20 @@ class HostAlarms(viewsets.ViewSet):
         """
         data = request.data
         serializer = self.get_serializer(data=data)
-        if serializer.is_valid():
-            values_from_request = list(serializer.data.values())
-            print(values_from_request[0])
+        # if serializer.is_valid():
+        if host_name is not None:
+
+            # values_from_request = list(serializer.data.values())
+            # print(values_from_request[0])
 
             ZabbixClient = ZabbixClient4_1()
-            response_result = ZabbixClient.list_host_alarms(values_from_request[0])
+            host_list = ZabbixClient.get_enabled_hosts()
+            name_to_id = HostsIds().get_hostid_from_names(host_list,host_name)
+            response_result = ZabbixClient.list_host_alarms(name_to_id)
 
             return response.Response(data=response_result, status=status.HTTP_200_OK)
+        else:
+            return response.Response(data=None, status=status.HTTP_204_NO_CONTENT)
 
     def acknowledge_alarm(self, request):
         pass

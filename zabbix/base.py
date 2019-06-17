@@ -105,7 +105,7 @@ class ZabbixClient4_1():
         params = {
                 "eventids": event_id,
                 "action": 6,
-                "message": "Problem acknowledged by api"
+                "message": "Problem acknowledged by zabbix api"
                 }
 
         request = self._build_request('event.acknowledge', params=params)
