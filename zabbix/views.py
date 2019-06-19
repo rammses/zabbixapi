@@ -1,5 +1,6 @@
 from rest_framework import viewsets, response, status
 from django.core import exceptions
+from zabbix.utils import HostsIds
 from zabbix.models import Machines
 
 from zabbix.serializers import \
@@ -206,30 +207,23 @@ class HostObject(viewsets.ViewSet):
     def get_serializer(self, data=None):
         return GetHostNameSerializer(data=data)
 
-    def get_host(self, request, host_name):
-        print('detail :', host_name, ' end')
-        print('request :', request.data, ' end')
-        data = request.data
-        serializer = self.get_serializer(data=data)
-        print('after serializer :', serializer, ' end')
-        # if serializer.is_valid():
-        if host_name is not None:
-            # k = list(serializer.data.values())
-            payload = {
-                        "jsonrpc": "2.0",
-                        "method": "host.get",
-                        "params": {
-                                    "filter": {
-                                            "host": [
-                                                    host_name
-                                                    ]
-                                            }
-                                },
-                        "auth": Base.authenticate(),
-                        "id": 1
-                        }
-            response_result = Base.Do_Request(payload)
-            return response.Response(data=response_result, status=status.HTTP_200_OK)
+    def get_host(self, request, machine_id):
+
+        if machine_id is not None:
+
+            print(machine_id)
+            id_ = machine_id
+            try:
+                ZabbixClient = ZabbixClient4_1()
+                m = Machines.objects.get(id=int(id_))
+
+                response_result = ZabbixClient.get_host_details(m.name)
+
+                return response.Response(data=response_result, status=status.HTTP_200_OK)
+
+            except exceptions.ObjectDoesNotExist:
+                return response.Response(data="DB error", status=status.HTTP_204_NO_CONTENT)
+
         else:
             return response.Response(data=None, status=status.HTTP_204_NO_CONTENT)
 
@@ -314,33 +308,23 @@ class HostAlarms(viewsets.ViewSet):
 
     def list_host_alarms(self, request, machine_id):
         """
-        Lists alarms from zabbix usin host_id
+        Lists alarms from zabbix using id
         :param request:
         :return:
         """
 
-        """
-        from zabbix.models import Machines
-        id_ = host_name
-        try :
-            m = models.Machines.object.egt(id=int(id_))
-        
-            ZabbixClient = ZabbixClient4_1()
-            response_result = ZabbixClient.list_host_alarms(m.name)
-            return response.Response(data=response_result, status=status.HTTP_200_OK)
-        except django.db.exception.ObjectNotFoundError :
-            return response.Response(data=response_result, status=status.HTTP_200_OK)
-            
-        """
         if machine_id is not None:
 
             print(machine_id)
             id_ = machine_id
             try:
-                m = Machines.objects.get(id=int(id_))
-                print(m.name)
                 ZabbixClient = ZabbixClient4_1()
-                response_result = ZabbixClient.list_host_alarms(m.name)
+                m = Machines.objects.get(id=int(id_))
+                machine_list = ZabbixClient.get_enabled_hosts()
+                host_id = HostsIds().get_hostid_from_names(machine_list, m.name)
+
+                response_result = ZabbixClient.list_host_alarms(host_id)
+
                 return response.Response(data=response_result, status=status.HTTP_200_OK)
 
             except exceptions.ObjectDoesNotExist:
