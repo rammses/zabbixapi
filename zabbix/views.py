@@ -1,4 +1,6 @@
 from rest_framework import viewsets, response, status
+from django.core import exceptions
+from zabbix.models import Machines
 
 from zabbix.serializers import \
     HostGroupSerializer, \
@@ -260,7 +262,6 @@ class HostTemplates(viewsets.ViewSet):
             response_result = Base.Do_Request(payload)
             return response.Response(data=response_result, status=status.HTTP_200_OK)
 
-
 class HostInterfaces(viewsets.ViewSet):
 
 
@@ -311,22 +312,42 @@ class HostAlarms(viewsets.ViewSet):
     def get_serializer(self, data=None):
         return AlarmsSerializer(data=data)
 
-    def list_host_alarms(self, request):
+    def list_host_alarms(self, request, machine_id):
         """
         Lists alarms from zabbix usin host_id
         :param request:
         :return:
         """
-        data = request.data
-        serializer = self.get_serializer(data=data)
-        if serializer.is_valid():
-            values_from_request = list(serializer.data.values())
-            print(values_from_request[0])
 
+        """
+        from zabbix.models import Machines
+        id_ = host_name
+        try :
+            m = models.Machines.object.egt(id=int(id_))
+        
             ZabbixClient = ZabbixClient4_1()
-            response_result = ZabbixClient.list_host_alarms(values_from_request[0])
-
+            response_result = ZabbixClient.list_host_alarms(m.name)
             return response.Response(data=response_result, status=status.HTTP_200_OK)
+        except django.db.exception.ObjectNotFoundError :
+            return response.Response(data=response_result, status=status.HTTP_200_OK)
+            
+        """
+        if machine_id is not None:
+
+            print(machine_id)
+            id_ = machine_id
+            try:
+                m = Machines.objects.get(id=int(id_))
+                print(m.name)
+                ZabbixClient = ZabbixClient4_1()
+                response_result = ZabbixClient.list_host_alarms(m.name)
+                return response.Response(data=response_result, status=status.HTTP_200_OK)
+
+            except exceptions.ObjectDoesNotExist:
+                return response.Response(data="DB error", status=status.HTTP_204_NO_CONTENT)
+
+        else:
+            return response.Response(data=None, status=status.HTTP_204_NO_CONTENT)
 
     def acknowledge_alarm(self, request):
         pass

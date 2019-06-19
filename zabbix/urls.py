@@ -54,7 +54,7 @@ urlpatterns = [
     # urls.url(r'zabbix/checkhostsexistence/', CheckForHostsExistence.as_view({'put': 'by_host_name'})),
 
     # Alarms
-    urls.url(r'^zabbix/alarms/(?P<host_name>.+)/$', HostAlarms.as_view({'get': 'list_host_alarms'})),
+    urls.url(r'^zabbix/alarms/(?P<machine_id>.+)/$', HostAlarms.as_view({'get': 'list_host_alarms'})),
 
     # Swagger Schema
     url(r'^$', schema_view)
