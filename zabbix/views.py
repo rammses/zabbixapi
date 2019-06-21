@@ -228,7 +228,6 @@ class HostObject(viewsets.ViewSet):
             return response.Response(data=None, status=status.HTTP_204_NO_CONTENT)
 
 
-
 class HostTemplates(viewsets.ViewSet):
 
     def get_serializer(self, data=None):
@@ -255,6 +254,7 @@ class HostTemplates(viewsets.ViewSet):
                     }
             response_result = Base.Do_Request(payload)
             return response.Response(data=response_result, status=status.HTTP_200_OK)
+
 
 class HostInterfaces(viewsets.ViewSet):
 
@@ -367,4 +367,3 @@ class CheckForHostsExistence(viewsets.ViewSet):
                 return response.Response(data='None', status=status.HTTP_204_NO_CONTENT)
             else:
                 return response.Response(data=response_result, status=status.HTTP_200_OK)
-
