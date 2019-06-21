@@ -16,6 +16,7 @@ from zabbix.serializers import \
 
 from MonitoringIntegration import settings
 from zabbix.base import ZabbixClient4_1
+from zabbix.utils import HostsIds
 import requests
 import json
 import sys
@@ -205,6 +206,7 @@ class HostObject(viewsets.ViewSet):
     def get_serializer(self, data=None):
         return GetHostNameSerializer(data=data)
 
+  hostname_to_id
     def get_host(self, request, machine_id):
 
         if machine_id is not None:
@@ -221,6 +223,9 @@ class HostObject(viewsets.ViewSet):
 
             except exceptions.ObjectDoesNotExist:
                 return response.Response(data="DB error", status=status.HTTP_204_NO_CONTENT)
+
+
+    
 
         else:
             return response.Response(data=None, status=status.HTTP_204_NO_CONTENT)
@@ -303,13 +308,15 @@ class HostAlarms(viewsets.ViewSet):
 
     def get_serializer(self, data=None):
         return AlarmsSerializer(data=data)
-
+      
     def list_host_alarms(self, request, machine_id):
+
         """
         Lists alarms from zabbix using id
         :param request:
         :return:
         """
+
 
         if machine_id is not None:
 
