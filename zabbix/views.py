@@ -5,12 +5,10 @@ from zabbix.models import Machines
 
 from zabbix.serializers import \
     HostGroupSerializer, \
-    HostGroupDetailsSerializer, \
     HostGroupIdSerializer, \
     DelHostGroupIdSerializer, \
     RenHostGroupNameSerializer,\
     GetHostNameSerializer,\
-    GetHostsSerializer,\
     HostTemplateSerializer,\
     GetGroupsSerializer,\
     HostAddSnmpSerializer,\
