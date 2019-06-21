@@ -681,3 +681,6 @@ test1 = HostsIds()
 test2 = HostsIds()
 print(test1.get_hostid_from_names(hosts, name))
 print(test1.get_name_from_hostids(hosts, hostid))
+
+
+

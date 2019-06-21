@@ -201,3 +201,18 @@ class ZabbixClient4_1():
         hosts = self.do_request(request)
 
         return hosts
+
+    def get_host_details(self, name):
+
+        params = {
+                "filter": {
+                "host": [
+                        name
+                        ]
+                        }
+                }
+
+        request = self._build_request('host.get', params=params)
+        response_result = self.do_request(request)
+
+        return response_result
