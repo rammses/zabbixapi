@@ -206,7 +206,7 @@ class HostObject(viewsets.ViewSet):
     def get_serializer(self, data=None):
         return GetHostNameSerializer(data=data)
 
-  hostname_to_id
+
     def get_host(self, request, machine_id):
 
         if machine_id is not None:
@@ -236,28 +236,27 @@ class HostTemplates(viewsets.ViewSet):
     def get_serializer(self, data=None):
         return HostTemplateSerializer(data=data)
 
-    def get_templates(self, request):
+    def get_templates(self, request, machine_id):
         data = request.data
-        serializer = self.get_serializer(data=data)
-        if serializer.is_valid():
-            k = list(serializer.data.values())
-            payload = {
-                        "jsonrpc": "2.0",
-                        "method": "host.get",
-                        "params": {
-                            "output": ["hostid"],
-                            "selectParentTemplates": [
-                                "templateid",
-                                "name"
-                            ],
-                            "hostids": k[0]
-                        },
-                        "id": 1,
-                        "auth": Base.authenticate()
-                    }
-            response_result = Base.Do_Request(payload)
-            return response.Response(data=response_result, status=status.HTTP_200_OK)
+        if machine_id is not None:
 
+            print(machine_id)
+            id_ = machine_id
+            try:
+                ZabbixClient = ZabbixClient4_1()
+                m = Machines.objects.get(id=int(id_))
+                machine_list = ZabbixClient.get_enabled_hosts()
+                host_id = HostsIds().get_hostid_from_names(machine_list, m.name)
+
+                response_result = ZabbixClient.get_resource_template_of_host(host_id)
+
+                return response.Response(data=response_result, status=status.HTTP_200_OK)
+
+            except exceptions.ObjectDoesNotExist:
+                return response.Response(data="DB error", status=status.HTTP_204_NO_CONTENT)
+
+        else:
+            return response.Response(data=None, status=status.HTTP_204_NO_CONTENT)
 
 class HostInterfaces(viewsets.ViewSet):
 
@@ -372,3 +371,117 @@ class CheckForHostsExistence(viewsets.ViewSet):
                 return response.Response(data='None', status=status.HTTP_204_NO_CONTENT)
             else:
                 return response.Response(data=response_result, status=status.HTTP_200_OK)
+
+
+class GetResourceDetails(viewsets.ViewSet):
+    """
+    zabbix
+    """
+
+    def processors(self, machine_id):
+
+        if machine_id is not None:
+            print(machine_id)
+            id_ = machine_id
+            try:
+                ZabbixClient = ZabbixClient4_1()
+                m = Machines.objects.get(id=int(id_))
+                machine_list = ZabbixClient.get_enabled_hosts()
+                host_id = HostsIds().get_hostid_from_names(machine_list, m.name)
+
+                response_result = ZabbixClient.get_cpu_history(host_id)
+
+                return response.Response(data=response_result, status=status.HTTP_200_OK)
+
+            except exceptions.ObjectDoesNotExist:
+                return response.Response(data="DB error", status=status.HTTP_204_NO_CONTENT)
+
+        else:
+            return response.Response(data=None, status=status.HTTP_204_NO_CONTENT)
+
+        #calculate_average 5min 1 h 1 day 2 days
+        #return json
+
+        return
+
+    def memory(self, machine_id):
+        # get data taken 2 times per min with 5 sec average
+        # calculate_average 5min 1 h 1 day 2 days
+        # return json
+        return
+
+    def storage(self, machine_id):
+        # get data
+        # calculate_average 5min 1 h 1 day 2 days
+        # return json
+        return
+
+class Items(viewsets.ViewSet):
+
+    def get_items(self,request,keyname):
+
+        """
+        Lists items in zabbix
+        """
+
+        if keyname is not None:
+            try:
+                ZabbixClient = ZabbixClient4_1()
+                response_result = ZabbixClient.get_items(keyname)
+                return response.Response(data=response_result, status=status.HTTP_200_OK)
+
+            except exceptions.ObjectDoesNotExist:
+                return response.Response(data="DB error", status=status.HTTP_204_NO_CONTENT)
+
+        else:
+            print("")
+            return response.Response(data="no keyname specified", status=status.HTTP_204_NO_CONTENT)
+
+
+class HistoricData(viewsets.ViewSet):
+
+    @staticmethod
+    def get_item_id(host_id, key_name):
+        if host_id or key_name is not None:
+            ZabbixClient = ZabbixClient4_1()
+            response_result = ZabbixClient.get_host_items(key_name,host_id)
+            raw_data = response_result
+            if len(raw_data) is not 0:
+                data = json.loads(json.dumps(raw_data[0]))
+                return data['itemid']
+            else:
+                return "0"
+        else:
+            return "0"
+
+    def cpu_data(self,request, machine_id):
+        """
+        lists cpu historic data 5min, 1hour, 1 day, 2 day
+        :param machine_id: machine id from database
+        :return: json output 5min : "48", 1h : "70, 1day: "30", 2day: "14"
+        """
+        if machine_id is not None:
+            id_ = machine_id
+            try:
+                ZabbixClient = ZabbixClient4_1()
+                m = Machines.objects.get(id=int(id_))
+                machine_list = ZabbixClient.get_enabled_hosts()
+                host_id = HostsIds().get_hostid_from_names(machine_list, m.name)
+                cpu_item = self.get_item_id(host_id, "cpu_load")
+                response_result = ZabbixClient.get_cpu_history(host_id, cpu_item)
+                return response.Response(data=response_result, status=status.HTTP_200_OK)
+
+            except exceptions.ObjectDoesNotExist:
+                return response.Response(data="DB error", status=status.HTTP_204_NO_CONTENT)
+
+        else:
+            return response.Response(data=None, status=status.HTTP_204_NO_CONTENT)
+
+    def used_ram_data(self,machine_id):
+        return
+
+    def free_ram_data(self,machine_id):
+        return
+
+    def ram_data(self,machine_id):
+        return

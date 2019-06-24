@@ -216,3 +216,55 @@ class ZabbixClient4_1():
         response_result = self.do_request(request)
 
         return response_result
+
+    def get_resource_template_of_host(self, id):
+        params = {
+                    "output": "extend",
+                    "hostids": id,
+                }
+
+        request = self._build_request('template.get', params=params)
+        response_result = self.do_request(request)
+        return response_result
+
+    def get_items(self,keyname):
+        params = {
+            "output": "extend",
+            "search": {
+                "key_": keyname
+            },
+            "sortfield": "name"
+    }
+
+        request = self._build_request('item.get', params=params)
+        response_result = self.do_request(request)
+        return response_result
+
+    def get_host_items(self,keyname, machine_id):
+        params = {
+            "output": "extend",
+            "hostids" : machine_id,
+            "search": {
+                "key_": keyname
+            },
+            "sortfield": "name"
+    }
+
+        request = self._build_request('item.get', params=params)
+        response_result = self.do_request(request)
+        return response_result
+
+    def get_cpu_history(self, id, itemid):
+        params = {
+                    "output": "extend",
+                    "hostids": id,
+                    "history": 3,
+                    "itemids": itemid,
+                    "sortfield": "clock",
+                    "sortorder": "DESC",
+                    "limit": 2880
+                }
+        request = self._build_request('history.get', params=params)
+        response_result = self.do_request(request)
+        return response_result
+

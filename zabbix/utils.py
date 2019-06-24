@@ -30,3 +30,6 @@ class HostsIds:
                 name = jsonized_list['host']
                 return name
 
+
+def calculate_average(data):
+    return
