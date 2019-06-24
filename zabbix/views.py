@@ -468,7 +468,7 @@ class HistoricData(viewsets.ViewSet):
                 machine_list = ZabbixClient.get_enabled_hosts()
                 host_id = HostsIds().get_hostid_from_names(machine_list, m.name)
                 cpu_item = self.get_item_id(host_id, "cpu_load")
-                response_result = ZabbixClient.get_cpu_history(host_id, cpu_item)
+                response_result = ZabbixClient.get_history(host_id, cpu_item)
 
                 calculations = fetch_and_calculate_average_v2(response_result)
                 return response.Response(data=calculations, status=status.HTTP_200_OK)
@@ -479,11 +479,45 @@ class HistoricData(viewsets.ViewSet):
         else:
             return response.Response(data=None, status=status.HTTP_204_NO_CONTENT)
 
-    def used_ram_data(self,machine_id):
-        return
+    def used_ram_data(self, request, machine_id):
+        if machine_id is not None:
+            id_ = machine_id
+            try:
+                ZabbixClient = ZabbixClient4_1()
+                m = Machines.objects.get(id=int(id_))
+                machine_list = ZabbixClient.get_enabled_hosts()
+                host_id = HostsIds().get_hostid_from_names(machine_list, m.name)
+                ram_item = self.get_item_id(host_id, "ram_consumed_")
+                response_result = ZabbixClient.get_history(host_id, ram_item)
 
-    def free_ram_data(self,machine_id):
-        return
+                calculations = fetch_and_calculate_average_v2(response_result)
+                return response.Response(data=calculations, status=status.HTTP_200_OK)
+
+            except exceptions.ObjectDoesNotExist:
+                return response.Response(data="DB error", status=status.HTTP_204_NO_CONTENT)
+
+        else:
+            return response.Response(data=None, status=status.HTTP_204_NO_CONTENT)
+
+    def free_ram_data(self,request ,machine_id):
+        if machine_id is not None:
+            id_ = machine_id
+            try:
+                ZabbixClient = ZabbixClient4_1()
+                m = Machines.objects.get(id=int(id_))
+                machine_list = ZabbixClient.get_enabled_hosts()
+                host_id = HostsIds().get_hostid_from_names(machine_list, m.name)
+                ram_item = self.get_item_id(host_id, "ram_free_")
+                response_result = ZabbixClient.get_history(host_id, ram_item)
+
+                calculations = fetch_and_calculate_average_v2(response_result)
+                return response.Response(data=calculations, status=status.HTTP_200_OK)
+
+            except exceptions.ObjectDoesNotExist:
+                return response.Response(data="DB error", status=status.HTTP_204_NO_CONTENT)
+
+        else:
+            return response.Response(data=None, status=status.HTTP_204_NO_CONTENT)
 
     def ram_data(self,machine_id):
         return

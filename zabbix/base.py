@@ -254,7 +254,7 @@ class ZabbixClient4_1():
         response_result = self.do_request(request)
         return response_result
 
-    def get_cpu_history(self, id, itemid):
+    def get_history(self, id, itemid):
         params = {
                     "output": "extend",
                     "hostids": id,
