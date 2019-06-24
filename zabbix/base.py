@@ -262,7 +262,7 @@ class ZabbixClient4_1():
                     "itemids": itemid,
                     "sortfield": "clock",
                     "sortorder": "DESC",
-                    "limit": 2880
+                    "limit": 10080
                 }
         request = self._build_request('history.get', params=params)
         response_result = self.do_request(request)

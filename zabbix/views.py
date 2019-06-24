@@ -1,6 +1,6 @@
 from rest_framework import viewsets, response, status
 from django.core import exceptions
-from zabbix.utils import HostsIds
+from zabbix.utils import HostsIds,fetch_and_calculate_average_v2
 from zabbix.models import Machines
 
 from zabbix.serializers import \
@@ -469,7 +469,9 @@ class HistoricData(viewsets.ViewSet):
                 host_id = HostsIds().get_hostid_from_names(machine_list, m.name)
                 cpu_item = self.get_item_id(host_id, "cpu_load")
                 response_result = ZabbixClient.get_cpu_history(host_id, cpu_item)
-                return response.Response(data=response_result, status=status.HTTP_200_OK)
+
+                calculations = fetch_and_calculate_average_v2(response_result)
+                return response.Response(data=calculations, status=status.HTTP_200_OK)
 
             except exceptions.ObjectDoesNotExist:
                 return response.Response(data="DB error", status=status.HTTP_204_NO_CONTENT)

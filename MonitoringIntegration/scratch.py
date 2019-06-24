@@ -336,12 +336,78 @@ raw_data = [
   },
   """
 
-print("len :",len(raw_data))
-jsonized=json.loads(raw_data[raw_data])
-
-for item in jsonized:
-    print(jsonized['value'])
 
 
+def fetch_and_calculate_average(data,retention):
+  """
+  gets list with json members uses value from every member returns average
+  :param data: the list of values
+  :param retention: 1m, 5m , 1h , 1d ,2d
+  :return:
+  """
+  average = 0
+  short_cut = {
+              "1m": 1,
+              "5m": 5,
+              "1h": 60,
+              "2h": 120,
+              "1d": 1440,
+              "2d": 2880
+  }
+  if retention in short_cut:
+    retention = int(short_cut[retention])
+  elif retention is None:
+    retention = 1
 
+  for count in range(int(retention)):
+
+    try:
+      load_json = json.dumps(data[count])
+      jsonized = json.loads(load_json)
+      # print(jsonized['value'])
+      average=average+int(jsonized['value'])
+    except IndexError as error:
+      print('insufficient data', error)
+      return 0
+
+  result = average / retention
+  return result
+
+
+
+def fetch_and_calculate_average_v2(data):
+  """
+  gets list with json members uses value from every member returns average
+  :param data: the list of values
+  :param retention: 1m, 5m , 1h , 1d ,2d
+  :return:
+  """
+  result = {}
+  average = 0
+  short_cut = {
+              "1m": 1,
+              "5m": 5,
+              "1h": 60,
+              "2h": 120,
+              "1d": 1440,
+              "2d": 2880
+  }
+  for item in short_cut:
+    retention_period= int(short_cut[item])
+    print('step :', item)
+    for count in range(retention_period):
+      try:
+        load_json = json.dumps(data[count])
+        jsonized = json.loads(load_json)
+        average = average + int(jsonized['value'])
+      except IndexError as error:
+        # print('insufficient data', error)
+        average = average
+
+    zone = average / retention_period
+    print(zone)
+    result.update({item: zone})
+  return result
+
+print(fetch_and_calculate_average_v2(raw_data))
 
