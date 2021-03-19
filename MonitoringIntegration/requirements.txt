@@ -3,4 +3,4 @@ requests
 json
 django-rest-framework==0.1.0
 django-rest-swagger==2.2.0
-djangorestframework==3.9.4
+djangorestframework==3.11.2
